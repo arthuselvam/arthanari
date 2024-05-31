@@ -1,7 +1,8 @@
 import { useState,} from "react";
 import { Dialog, Box, Typography, styled, InputBase, TextField, Button } from "@mui/material";
 import {  Close, DeleteOutline } from "@mui/icons-material";
-
+import useApi from "../hooks/useApi";
+import { API_URLS } from "../services/api.urls";
 
 const dialogStyle = {
     height: '90%',
@@ -22,6 +23,7 @@ const Header = styled(Box) ({
         fontWeight: 500,
     }
 });
+
 const RecipientsWrapper = styled(Box) ({
         display: 'flex',
         flexDirection: 'column',
@@ -49,15 +51,14 @@ const SendButton = styled(Button)({
 })
 
 const ComposeMail = ({ openDialog, setOpenDialog }) => {
-
     const [data, setData] = useState({});
+    const sentEmailService = useApi(API_URLS.saveSentEmail);
 
     const config = {
             Host : "smtp.elasticemail.com",
             Username : process.env.REACT_APP_USERNAME,
             Password : process.env.REACT_APP_PASSWORD,
             Port: 2525,
-            
         }
 
     const closeComposeMail = (e) => {
@@ -81,6 +82,27 @@ const ComposeMail = ({ openDialog, setOpenDialog }) => {
           message => alert(message)
         );
     }
+    const payload = {
+        to: data.to,
+        from: "arthanariselvam7099@gmail.com",
+        subject: data.subject,
+        body: data.body,
+        data: new Date(),
+        image: '',
+        name: 'Arthanari Selvam',
+        starred: false,
+        type: 'sent'
+    }
+
+    sentEmailService.call(payload);
+
+    if (!sentEmailService.error) {
+        setOpenDialog(false);
+        setData({});
+    } else {
+        
+    }
+    
         setOpenDialog(false);
     }
 
